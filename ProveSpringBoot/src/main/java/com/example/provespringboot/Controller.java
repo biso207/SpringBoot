@@ -1,23 +1,34 @@
 package com.example.provespringboot;
 
+import com.example.provespringboot.model.Studente;
+import com.example.provespringboot.repository.StudenteRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/studenti")
 public class Controller {
 
-    @GetMapping("/hello")
-    public String printMessage(@RequestParam(defaultValue = "Your Message") String message) {
-        return message;
+    @Autowired
+    private StudenteRepository studenteRepository;
+
+    // Mostra tutti gli studenti
+    @GetMapping
+    public List<Studente> getAllStudenti() {
+        return studenteRepository.findAll();
     }
 
-    @GetMapping("/helloWorld")
-    public String printMessage() {
-        return "Hello World";
+    // Aggiungi un nuovo studente
+    @PostMapping
+    public Studente addStudente(@RequestBody Studente studente) {
+        return studenteRepository.save(studente);
     }
 
-    @GetMapping("/secure-data")
-    public String getSecureData() {
-        return "Dati Protetti";
+    // Trova uno studente per email
+    @GetMapping("/{email}")
+    public Studente getStudenteByEmail(@PathVariable String email) {
+        return studenteRepository.findByEmail(email);
     }
 }
