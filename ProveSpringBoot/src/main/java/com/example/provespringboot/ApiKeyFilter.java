@@ -18,7 +18,7 @@ public class ApiKeyFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String apiKey = request.getHeader("X-API-Key");
         String path = request.getRequestURI();
-        System.out.println(path);
+        //System.out.println(path);
         if (isValidApiKey(apiKey)||path.matches("/swagger-ui.*")||path.matches("/api-docs.*")) {
             filterChain.doFilter(request, response);
         } else {

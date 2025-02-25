@@ -1,34 +1,31 @@
 package com.example.provespringboot;
-
-import com.example.provespringboot.model.Studente;
-import com.example.provespringboot.repository.StudenteRepository;
+import com.example.provespringboot.model.Nodo;
+import com.example.provespringboot.service.NodoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
-@RequestMapping("/studenti")
+@RequestMapping("/api")
 public class Controller {
-
     @Autowired
-    private StudenteRepository studenteRepository;
-
-    // Mostra tutti gli studenti
-    @GetMapping
-    public List<Studente> getAllStudenti() {
-        return studenteRepository.findAll();
+    NodoService nodoService;
+    //funzione di test per aggiungere un nodo manulmente
+    //TODO: toglierla
+    @PostMapping("/add")
+    public Nodo addNodo(@RequestBody Nodo nodo){
+        return nodoService.create(nodo);
     }
-
-    // Aggiungi un nuovo studente
-    @PostMapping
-    public Studente addStudente(@RequestBody Studente studente) {
-        return studenteRepository.save(studente);
+    @GetMapping("/getNewIdNodo")
+    public Nodo getNewIdNodo(){
+        return nodoService.newNodo();
     }
-
-    // Trova uno studente per email
-    @GetMapping("/{email}")
-    public Studente getStudenteByEmail(@PathVariable String email) {
-        return studenteRepository.findByEmail(email);
+    @PostMapping("/updateTimestamp")
+    public String updateTimestamp(@RequestBody Nodo nodo){
+        if(nodoService.updateNodo(nodo)){
+            return "{\"message\":\"Nodo updated\"}";
+        }
+        else{
+            return "{\"message\":\"Nodo could not be updated\"}";
+        }
     }
 }
