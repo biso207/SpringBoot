@@ -15,10 +15,12 @@ public class Controller {
     public Nodo addNodo(@RequestBody Nodo nodo){
         return nodoService.create(nodo);
     }
+
     @GetMapping("/getNewIdNodo")
-    public Nodo getNewIdNodo(){
+    public String getNewIdNodo(){
         return nodoService.newNodo();
     }
+
     @PostMapping("/updateTimestamp")
     public String updateTimestamp(@RequestBody Nodo nodo){
         if(nodoService.updateNodo(nodo)){

@@ -4,7 +4,7 @@ import com.example.provespringboot.model.Nodo;
 
 public interface NodoService {
     public Nodo create(Nodo nodo);
-    public Nodo newNodo();
+    public String newNodo();
     public boolean updateNodo(Nodo nodo);
     public void controlConnections();
 }

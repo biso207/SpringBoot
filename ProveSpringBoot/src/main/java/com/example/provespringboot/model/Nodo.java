@@ -38,4 +38,13 @@ public class Nodo {
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
+
+    @Override
+    public String toString() {
+        return "{" +
+                "\"id\" : " + id +
+                ", \"idNodo\" : " + idNodo +
+                ", \"timestamp\" : " + timestamp +
+                '}';
+    }
 }

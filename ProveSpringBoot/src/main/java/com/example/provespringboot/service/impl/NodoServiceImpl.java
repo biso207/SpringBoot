@@ -31,7 +31,7 @@ public class NodoServiceImpl implements NodoService {
 
     @Transactional
     @Override
-    public Nodo newNodo() {
+    public String newNodo() {
         List<Nodo> db = nodoRepository.findAll();
         boolean[] used = new boolean[maxId+1];
         Arrays.fill(used, false);
@@ -45,21 +45,27 @@ public class NodoServiceImpl implements NodoService {
             int i=0;
             while(i<maxId+1){
                 if(!used[i]){
-                    //Lock pessimistico
-                    Nodo existingNodo = nodoRepository.findAndLockByIdNodo(i);
-                    if(existingNodo==null) {
-                        Nodo nodo = new Nodo();
-                        nodo.setId(null);
-                        nodo.setIdNodo(i);
-                        nodo.setTimestamp(System.currentTimeMillis());
-                        nodoRepository.save(nodo);
-                        return nodo;
+                    try {
+                        //Lock pessimistico
+                        Nodo existingNodo = nodoRepository.findAndLockByIdNodo(i);
+                        if (existingNodo == null) {
+                            Nodo nodo = new Nodo();
+                            nodo.setId(null);
+                            nodo.setIdNodo(i);
+                            nodo.setTimestamp(System.currentTimeMillis());
+                            nodoRepository.save(nodo);
+                            System.out.println("LOG -> Nodo created : "+nodo);
+                            return "{\"nodo\":" + nodo + ", \"message\":\"Nodo created\"}";
+                        }
+                    }catch (Exception e){
+                        System.out.println("NodoServiceImpl.newNodo: "+e.getMessage());
+                        return "{\"nodo\":"+null+", \"message\":\"Nodo not created\"}";
                     }
                 }
                 i++;
             }
         }
-        return null;
+        return "{\"nodo\":"+null+", \"message\":\"Nodo not created\"}";
     }
 
     @Override
@@ -71,6 +77,7 @@ public class NodoServiceImpl implements NodoService {
         }
         elemento.setTimestamp(System.currentTimeMillis());
         nodoRepository.save(elemento);
+        System.out.println("LOG -> Nodo updated: "+elemento);
         return true;
     }
 
@@ -78,6 +85,7 @@ public class NodoServiceImpl implements NodoService {
     public void controlConnections() {
         long currentTime = System.currentTimeMillis();
         nodoRepository.deleteInactiveNodes(currentTime, maxInactivityTime);
+        System.out.println("LOG -> Pulizia Nodi effettuata!");
     }
 
 
