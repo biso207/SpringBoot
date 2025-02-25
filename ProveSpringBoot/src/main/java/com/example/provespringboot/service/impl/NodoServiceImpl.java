@@ -68,12 +68,8 @@ public class NodoServiceImpl implements NodoService {
 
     @Override
     public void controlConnections() {
-        List<Nodo> db = nodoRepository.findAll();
-        for(Nodo nodo : db){
-            if(System.currentTimeMillis()-nodo.getTimestamp()>maxInactivityTime){
-                nodoRepository.delete(nodo);
-            }
-        }
+        long currentTime = System.currentTimeMillis();
+        nodoRepository.deleteInactiveNodes(currentTime, maxInactivityTime);
     }
 
 
