@@ -6,6 +6,7 @@ import com.example.provespringboot.service.NodoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 import java.util.Arrays;
@@ -28,6 +29,7 @@ public class NodoServiceImpl implements NodoService {
         return nodoRepository.save(nodo);
     }
 
+    @Transactional
     @Override
     public Nodo newNodo() {
         List<Nodo> db = nodoRepository.findAll();
@@ -35,18 +37,24 @@ public class NodoServiceImpl implements NodoService {
         Arrays.fill(used, false);
         if(db.size()<=maxId){
             //cerca il primo id disponibile da assegnare al nodo
+            //teoricamente con max 1000 elementi non dovrebbe essere troppo pesante?
+            //TODO: pensare a un possibile metodo di ottimizzazione
             for(Nodo nodo : db){
                 used[nodo.getIdNodo()] = true;
             }
             int i=0;
             while(i<maxId+1){
                 if(!used[i]){
-                    Nodo nodo = new Nodo();
-                    nodo.setId(null);
-                    nodo.setIdNodo(i);
-                    nodo.setTimestamp(System.currentTimeMillis());
-                    nodoRepository.save(nodo);
-                    return nodo;
+                    //Lock pessimistico
+                    Nodo existingNodo = nodoRepository.findAndLockByIdNodo(i);
+                    if(existingNodo==null) {
+                        Nodo nodo = new Nodo();
+                        nodo.setId(null);
+                        nodo.setIdNodo(i);
+                        nodo.setTimestamp(System.currentTimeMillis());
+                        nodoRepository.save(nodo);
+                        return nodo;
+                    }
                 }
                 i++;
             }

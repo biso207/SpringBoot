@@ -15,10 +15,6 @@ public class Nodo {
     @Column(name="timestamp")
     private long timestamp;
 
-    //lock ottimistico
-    @Version
-    private Integer version;
-
     public Integer getId() {
         return id;
     }
