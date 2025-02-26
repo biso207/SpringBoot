@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -32,40 +33,24 @@ public class NodoServiceImpl implements NodoService {
     @Transactional
     @Override
     public String newNodo() {
-        List<Nodo> db = nodoRepository.findAll();
-        boolean[] used = new boolean[maxId+1];
-        Arrays.fill(used, false);
-        if(db.size()<=maxId){
-            //cerca il primo id disponibile da assegnare al nodo
-            //teoricamente con max 1000 elementi non dovrebbe essere troppo pesante?
-            //TODO: pensare a un possibile metodo di ottimizzazione
-            for(Nodo nodo : db){
-                used[nodo.getIdNodo()] = true;
-            }
-            int i=0;
-            while(i<maxId+1){
-                if(!used[i]){
-                    try {
-                        //Lock pessimistico
-                        Nodo existingNodo = nodoRepository.findAndLockByIdNodo(i);
-                        if (existingNodo == null) {
-                            Nodo nodo = new Nodo();
-                            nodo.setId(null);
-                            nodo.setIdNodo(i);
-                            nodo.setTimestamp(System.currentTimeMillis());
-                            nodoRepository.save(nodo);
-                            System.out.println("LOG -> Nodo created : "+nodo);
-                            return "{\"nodo\":" + nodo + ", \"message\":\"Nodo created\"}";
-                        }
-                    }catch (Exception e){
-                        System.out.println("NodoServiceImpl.newNodo: "+e.getMessage());
-                        return "{\"nodo\":"+null+", \"message\":\"Nodo not created\"}";
-                    }
-                }
-                i++;
-            }
+        List<Integer> freeIdNodo = nodoRepository.findAvailableIdNodo(maxId);
+        if(freeIdNodo.isEmpty()){
+            return "{\"nodo\":"+null+", \"message\":\"Nodo not created\"}";
         }
-        return "{\"nodo\":"+null+", \"message\":\"Nodo not created\"}";
+        int idNodo = freeIdNodo.getFirst();
+        try {
+            Nodo nodo = new Nodo();
+            nodo.setId(null);
+            nodo.setIdNodo(idNodo);
+            nodo.setTimestamp(System.currentTimeMillis());
+            nodoRepository.saveAndFlush(nodo);
+            System.out.println("LOG (" + (new Date()) + ") -> Nodo created : " + nodo);
+            return "{\"nodo\":" + nodo + ", \"message\":\"Nodo created\"}";
+        } catch (Exception e) {
+            System.err.println("LOG (" + (new Date()) + ") -> Nodo creation failed : " + e.getMessage());
+            return "{\"nodo\":" + null + ", \"message\":\"Nodo creation failed\"}";
+        }
+
     }
 
     @Override
@@ -77,7 +62,7 @@ public class NodoServiceImpl implements NodoService {
         }
         elemento.setTimestamp(System.currentTimeMillis());
         nodoRepository.save(elemento);
-        System.out.println("LOG -> Nodo updated: "+elemento);
+        System.out.println("LOG ("+(new Date())+") -> Nodo updated: "+elemento);
         return true;
     }
 
@@ -85,8 +70,6 @@ public class NodoServiceImpl implements NodoService {
     public void controlConnections() {
         long currentTime = System.currentTimeMillis();
         nodoRepository.deleteInactiveNodes(currentTime, maxInactivityTime);
-        System.out.println("LOG -> Pulizia Nodi effettuata!");
+        System.out.println("LOG ("+(new Date())+") -> Pulizia Nodi effettuata!");
     }
-
-
 }
