@@ -20,11 +20,6 @@ public interface NodoRepository extends JpaRepository<Nodo,Integer> {
     @Query("DELETE FROM Nodo WHERE :currentTime - timestamp > :maxInactivityTime")
     void deleteInactiveNodes(@Param("currentTime") long currentTime, @Param("maxInactivityTime") long maxInactivityTime);
 
-    //query per il lock pessimistico
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT n FROM Nodo n WHERE n.idNodo = :idNodo")
-    Nodo findAndLockByIdNodo(@Param("idNodo") int idNodo);
-
     //Query custom per ottenere tutti i nodi liberi
     @Query(value = """
     WITH RECURSIVE numbers AS (
