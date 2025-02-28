@@ -24,12 +24,6 @@ public class NodoServiceImpl implements NodoService {
     @Value("${application.service.max-inactivity-time}")
     public long maxInactivityTime;
 
-    @Override
-    public Nodo create(Nodo nodo) {
-        nodo.setId(null);
-        return nodoRepository.save(nodo);
-    }
-
     @Transactional
     @Override
     public String newNodo() {

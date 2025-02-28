@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `nodi`.`identificators` (
+CREATE TABLE IF NOT EXISTS `identificators` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `idNodo` INT NOT NULL,
     `timestamp` BIGINT NULL,

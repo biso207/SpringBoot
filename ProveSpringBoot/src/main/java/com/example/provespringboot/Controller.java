@@ -11,12 +11,6 @@ import java.util.List;
 public class Controller {
     @Autowired
     NodoService nodoService;
-    //funzione di test per aggiungere un nodo manulmente
-    //TODO: toglierla
-    @PostMapping("/add")
-    public Nodo addNodo(@RequestBody Nodo nodo){
-        return nodoService.create(nodo);
-    }
 
     @GetMapping("/getNewIdNodo")
     public String getNewIdNodo(){
